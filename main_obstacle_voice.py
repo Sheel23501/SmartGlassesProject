@@ -23,7 +23,7 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus"
            "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
 
 # Camera
-cam = cv2.VideoCapture(1)
+cam = cv2.VideoCapture(0)
 print("🚀 Running obstacle detection with voice guidance...")
 
 last_spoken_time = time.time()

@@ -1,21 +1,43 @@
 import cv2
 import os
 import numpy as np
+import pickle
 from PIL import Image
 
-# Load the trained model
+# Load trained model
 recognizer = cv2.face.LBPHFaceRecognizer_create()
-recognizer.read("face1/trainer/face_detect.yml")
+model_path = "face1/trainer/face_detect.yml"
 
-# Load Haar cascade for face detection
-cascade_path = "haarcascade_frontalface_default.xml"
+if not os.path.exists(model_path):
+    raise FileNotFoundError(f"❌ Model file not found: {model_path}")
+recognizer.read(model_path)
+
+# Load Haar cascade (try local first, fallback to OpenCV's built-in)
+local_cascade_path = "face1/trainer/haarcascade_frontalface_default.xml"
+if os.path.exists(local_cascade_path):
+    cascade_path = local_cascade_path
+else:
+    cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+
 face_cascade = cv2.CascadeClassifier(cascade_path)
+if face_cascade.empty():
+    raise IOError(f"❌ Failed to load Haar cascade from {cascade_path}")
 
-# Label mapping (must match what you printed earlier)
-label_dict = {0: "sheel"}
+# Load label dictionary
+labels_path = "face1/trainer/labels.pickle"
+if os.path.exists(labels_path):
+    with open(labels_path, "rb") as f:
+        label_dict = pickle.load(f)
+        # Invert dictionary to match IDs -> names
+        label_dict = {v: k for k, v in label_dict.items()}
+else:
+    label_dict = {0: "Unknown"}
 
-# Start the webcam
+# Start webcam
 cam = cv2.VideoCapture(0)
+if not cam.isOpened():
+    raise IOError("❌ Cannot access the camera.")
+
 print("🔍 Face recognition started. Press 'q' to quit.")
 
 while True:
@@ -24,7 +46,7 @@ while True:
         break
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
 
     for (x, y, w, h) in faces:
         roi_gray = gray[y:y+h, x:x+w]

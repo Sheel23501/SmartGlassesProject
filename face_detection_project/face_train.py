@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 # Paths
-dataset_path = "data"
+dataset_path = "face1/data"
 haar_cascade_path = "haarcascade_frontalface_default.xml"
 trainer_path = "trainer"
 model_save_path = os.path.join(trainer_path, "face-train.yml")
@@ -56,3 +56,4 @@ with open(os.path.join(trainer_path, "labels.pickle"), "wb") as f:
     pickle.dump(label_map, f)
 
 print("✅ Training complete. Model saved to:", model_save_path)
+print("jai mata di")
